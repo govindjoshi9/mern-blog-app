@@ -1,17 +1,22 @@
+import "./App.css";
+import Layout from "./components/Layout";
+import IndexPage from "./components/Pages/IndexPage";
+import { Route, Routes } from "react-router-dom";
+import LoginPage from "./components/Pages/LoginPage";
+import Register from "./components/Pages/Register";
 
-import './App.css'
+
 
 function App() {
-
   return (
-    <header>
-      <a href="" className='logo'>MyBlog</a>
-      <nav>
-        <a href="">Login</a>
-        <a href="">Register</a>
-      </nav>
-    </header>
-  )
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        <Route index element={<IndexPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<Register />} />
+      </Route>
+    </Routes>
+  );
 }
 
-export default App
+export default App;
