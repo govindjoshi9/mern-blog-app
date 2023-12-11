@@ -5,6 +5,7 @@ import { Route, Routes } from "react-router-dom";
 import LoginPage from "./components/Pages/LoginPage";
 import Register from "./components/Pages/Register";
 import {  UserContextProvider } from "./UserContext";
+import CreatePost from "./components/Pages/CreatePost";
 
 
 
@@ -16,6 +17,7 @@ function App() {
           <Route index element={<IndexPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/create" element={<CreatePost />} />
         </Route>
       </Routes>
     </UserContextProvider>
