@@ -1,28 +1,19 @@
-export default function Post() {
+import { formatISO9075 } from "date-fns";
+export default function Post({ title, summary, createdAt, cover, auther }) {
+  // console.log(auther.username)
   return (
-    
-      <div className="post">
-        <div className="image">
-          <img src="./img.jpg" alt="" />
-        </div>
-        <div className="texts">
-          <h2>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Molestiae
-            culpa officiis asperiores.
-          </h2>
-          <p className="info">
-            <a className="auther">Owner</a>
-            <time>2023-12-10</time>
-          </p>
-          <p className="summary">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Porro atque
-            dicta architecto molestias, maxime necessitatibus et illo tenetur
-            esse, nostrum vitae ut? Porro recusandae earum harum in similique
-            quibusdam. Dignissimos iusto quos sapiente officia velit. Quis ipsam
-            vitae aliquid maxime possimus quos delectus.
-          </p>
-        </div>
+    <div className="post">
+      <div className="image">
+        <img src={'http://localhost:4000/'+cover} alt="" />
       </div>
-    
+      <div className="texts">
+        <h2>{title}</h2>
+        <p className="info">
+          <a className="auther">{auther.username}</a>
+          <time>{formatISO9075(new Date(createdAt))}</time>
+        </p>
+        <p className="summary">{summary}</p>
+      </div>
+    </div>
   );
 }

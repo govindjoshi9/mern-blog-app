@@ -18,6 +18,7 @@ const secret = 'asfe34etet3456';
 app.use(cors({ credentials: true, origin: 'http://localhost:5173' }));
 app.use(express.json());
 app.use(cookieParsser());
+app.use('/uploads', express.static(__dirname + '/uploads'));
 
 mongoose.connect(
   "mongodb+srv://blog:HRoW3f14SSLyRyOq@cluster0.l5hx9bv.mongodb.net/?retryWrites=true&w=majority"
@@ -79,14 +80,30 @@ app.post('/post', uploadMiddleware.single('file'), async (req, res) => {
   const ext = parts[parts.length - 1];
   const newPath = path + '.' + ext;
   fs.renameSync(path, newPath);
-  const { title, summary, content } = req.body;
-  const PostDoc = await Post.create({
+
+
+  const { token } = req.cookies;
+  jwt.verify(token, secret, {}, async (err, info) => {
+    if (err) throw err;
+    const { title, summary, content } = req.body;
+    const PostDoc = await Post.create({
     title,
     summary,
     content,
     cover: newPath,
+    auther:info.id,
   });
   res.json(PostDoc);
+  });
+})
+
+app.get('/post', async (req, res) => {
+  res.json(
+    await Post.find()
+      .populate('auther', ['username'])
+      .sort({ createdAt: -1 })
+      .limit(20)
+  );
 })
 
 
