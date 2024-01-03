@@ -13,6 +13,7 @@ const fs = require('fs');
 
 const salt = bcrypt.genSaltSync(10);
 const secret = 'asfe34etet3456';
+const PORT = process.env.PORT || 4000;
 
 
 app.use(cors({ credentials: true, origin: 'http://localhost:5173' }));
@@ -20,9 +21,15 @@ app.use(express.json());
 app.use(cookieParsser());
 app.use('/uploads', express.static(__dirname + '/uploads'));
 
-mongoose.connect(
-  "mongodb+srv://blog:HRoW3f14SSLyRyOq@cluster0.l5hx9bv.mongodb.net/?retryWrites=true&w=majority"
-);
+async function connectToDatabase() {
+  try {
+    await mongoose.connect("mongodb://127.0.0.1:27017/blog",);
+    console.log("Connected to MongoDB");
+  } catch (error) {
+    console.error("Error connecting to MongoDB:", error);
+    process.exit(1);
+  }
+}
 
 
 app.post('/register', async (req, res) => {
@@ -80,8 +87,7 @@ app.post('/post', uploadMiddleware.single('file'), async (req, res) => {
   const ext = parts[parts.length - 1];
   const newPath = path + '.' + ext;
   fs.renameSync(path, newPath);
-
-
+  
   const { token } = req.cookies;
   jwt.verify(token, secret, {}, async (err, info) => {
     if (err) throw err;
@@ -97,6 +103,35 @@ app.post('/post', uploadMiddleware.single('file'), async (req, res) => {
   });
 })
 
+app.put("/post", uploadMiddleware.single("file"), async (req, res) => {
+  // const newPath = null;
+  if (req.file) {
+    const { originalname, path } = req.file;
+    const parts = originalname.split(".");
+    const ext = parts[parts.length - 1];
+    const newPath = path + "." + ext;
+    fs.renameSync(path, newPath);
+  }
+
+  const { token } = req.cookies;
+  jwt.verify(token, secret, {}, async (err, info) => {
+    if (err) throw err;
+    const { id, title, summary, content } = req.body;
+    const postDoc = await Post.findById(id);
+    const isAuthor = JSON.stringify(postDoc.author) === JSON.stringify(info.id);
+    res.json({ isAuthor , postDoc, info});
+    // const PostDoc = await Post.create({
+    //   title,
+    //   summary,
+    //   content,
+    //   cover: newPath,
+    //   auther: info.id,
+    // });
+    res.json(PostDoc);
+  });
+
+});
+
 app.get('/post', async (req, res) => {
   res.json(
     await Post.find()
@@ -107,4 +142,17 @@ app.get('/post', async (req, res) => {
 })
 
 
-app.listen(4000)
+app.get('/post/:id', async (req, res) => {
+  const { id } = req.params;
+  // req.json(req.params);
+  const postDoc = await Post.findById(id);
+  // console.log(postDoc);
+  res.json(postDoc);
+})
+
+
+connectToDatabase().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+});
